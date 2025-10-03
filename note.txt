@@ -1,0 +1,18 @@
+f pilihan == "1":
+        fungsi = fungsi_kuadrat
+        nama_fungsi = "x² + x - 1"
+    elif pilihan == "2":
+        fungsi = fungsi_trigonometri
+        nama_fungsi = "sin(x) + x"
+    elif pilihan == "3":
+        fungsi = fungsi_eksponensial
+        nama_fungsi = "exp(x) - 2"
+    elif pilihan == "4":
+        fungsi = fungsi_polinomial
+        nama_fungsi = "x³ - 2x - 5"
+    elif pilihan == "5":
+        fungsi = fungsi_custom()
+        nama_fungsi = "Custom"
+    else:
+        fungsi = fungsi_kuadrat
+        nama_fungsi = "x² + x - 1"
