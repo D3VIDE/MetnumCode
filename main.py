@@ -3,6 +3,7 @@ from taylorTheorem import taylor_series
 from bisection import fungsi_parachutist, cari_interval, metode_bisection, tampilkan_hasil_akhir, tampilkan_sejarah_iterasi, tampilkan_perkembangan_interval, metode_bisection_custom
 from gaus import print_matrix, gauss_elimination, backward_substitution
 from incrementalSearch import incremental_search_multistage
+from newtonRaphson import newton_raphson_complete
 import numpy as np
 def show_menu():
     print("\n" + "="*40)
@@ -15,6 +16,7 @@ def show_menu():
     print("5. Manual Input - Increment ")
     print("6. Metode Drag - Increment")
     print("7. Manual input - Bisection")
+    print("8. newtonRaphson - x_i+1 ")
     print("-. Gaus Elimination")
     print("100. Keluar (q)")
     print("-"*40)
@@ -273,7 +275,14 @@ def metode_100():
     print("A × x =", np.round(np.dot(A, x), 2))
 
 def metode_7():
+    print("METODE BISECTION - INPUT")
+    print("=" * 50)
     metode_bisection_custom()
+
+def metode_8():
+    print("METODE NEWTON RAPHSON - x_i+1")
+    print("=" * 50)
+    newton_raphson_complete()
 
 def main():
   while True:
@@ -294,6 +303,8 @@ def main():
             metode_6()
         elif pilihan == "7":
             metode_7()
+        elif pilihan == "8":
+            metode_8()
         elif pilihan == "q":
            print("\nTerima kasih! Program selesai.")
            break
