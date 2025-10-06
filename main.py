@@ -1,6 +1,8 @@
 from binerIteration import biner_solver
 from taylorTheorem import taylor_series
 from bisection import fungsi_parachutist, cari_interval, metode_bisection, tampilkan_hasil_akhir, tampilkan_sejarah_iterasi, tampilkan_perkembangan_interval
+from gaus import print_matrix, gauss_elimination, backward_substitution
+import numpy as np
 def show_menu():
     print("\n" + "="*40)
     print("           PROGRAM NUMERIK")
@@ -9,7 +11,7 @@ def show_menu():
     print("2. Metode Deret Taylor")
     print("3. Metode Drag - Bisection")
     print("4. Metode Bisection - PENENTUAN TITIK")
-    print("5. Fungsi 5")
+    print("5. Gaus Elimination")
     print("6. Keluar")
     print("-"*40)
     return input("Pilih opsi (1-6): ")
@@ -224,9 +226,40 @@ def metode_4():
 
 
 def metode_5():
-   print("\n=== FUNGSI 5 ===")
-   # Implementasi di sini
-   pass
+    print("="*70)
+    print("📘 PENYELESAIAN SPL DENGAN METODE GAUSS ELIMINATION")
+    print("="*70)
+
+    n = int(input("\nMasukkan ukuran matriks (misal 3 untuk 3x3): "))
+
+    A = np.zeros((n, n))
+    print("\nMasukkan elemen matriks A:")
+    for i in range(n):
+        for j in range(n):
+            A[i][j] = float(input(f"  A[{i+1},{j+1}] = "))
+
+    b = np.zeros(n)
+    print("\nMasukkan elemen vektor b:")
+    for i in range(n):
+        b[i] = float(input(f"  b[{i+1}] = "))
+
+    print("\nMatriks A:")
+    print_matrix(A)
+    print("Vektor b:")
+    print(b)
+
+    aug = gauss_elimination(A, b)
+    x = backward_substitution(aug)
+
+    print("\n==================== HASIL AKHIR ====================")
+    for i in range(n):
+        print(f"x{i+1} = {x[i]:8.2f}")
+
+    print("\nVerifikasi: A × x = b →", np.allclose(np.dot(A, x), b))
+    print("A × x =", np.round(np.dot(A, x), 2))
+
+def metode_6():
+    pass 
 
 def main():
   while True:
