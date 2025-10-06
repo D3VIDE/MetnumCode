@@ -233,6 +233,7 @@ def metode_5():
 
     incremental_search_multistage()
 
+
 def metode_6():
     print("\n" + "="*50)
     print("PROGRAM INCREMENTAL SEARCH")
