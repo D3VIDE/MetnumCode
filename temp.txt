@@ -1,0 +1,97 @@
+def metode_bisection(f, a, b, params, toleransi=1e-6, max_iter=100):
+    """
+    Metode Bisection untuk mencari akar persamaan dengan ε_a dan ε_t
+    + menampilkan rumus dan hasil secara lengkap setiap iterasi
+    """
+    fa = f(a, *params)
+    fb = f(b, *params)
+    m, g, t, v = params
+
+    print(f"\n" + "="*70)
+    print("INFORMASI INTERVAL AWAL")
+    print("="*70)
+    print(f"a = {a:.6f}, f(a) = {fa:.6f}")
+    print(f"b = {b:.6f}, f(b) = {fb:.6f}")
+    print(f"f(a) × f(b) = {fa * fb:.6f}")
+
+    if fa * fb >= 0:
+        print("❌ ERROR: f(a) dan f(b) harus memiliki tanda yang berbeda!")
+        return None, 0, []
+
+    # Cari true root (referensi) untuk perhitungan ε_t
+    a_temp, b_temp = a, b
+    for _ in range(100):
+        c_temp = (a_temp + b_temp) / 2
+        fc_temp = f(c_temp, *params)
+        if f(a_temp, *params) * fc_temp < 0:
+            b_temp = c_temp
+        else:
+            a_temp = c_temp
+    true_root = c_temp
+    print(f"\nTrue root (referensi): {true_root:.8f}")
+
+    print(f"\n{'='*100}")
+    print("PROSES ITERASI BISECTION (dengan rumus + hasil lengkap)")
+    print("="*100)
+
+    iterasi = 0
+    c_prev = None
+    history = []
+
+    for i in range(max_iter):
+        iterasi += 1
+        c = (a + b) / 2
+        fc = f(c, *params)
+
+        # Hitung ε_a dan ε_t
+        ε_a = abs((c - c_prev) / c) * 100 if c_prev else float('inf')
+        ε_t = abs((true_root - c) / true_root) * 100
+
+        history.append({
+            'iterasi': iterasi,
+            'a': a, 'b': b, 'c': c,
+            'f(c)': fc,
+            'ε_a': ε_a,
+            'ε_t': ε_t,
+            'lebar_interval': abs(b - a)
+        })
+
+        # ==================== PRINT DETAIL PER ITERASI ====================
+        print(f"\n🔹 Iterasi {iterasi}")
+        print(f"   Rumus c = (a + b) / 2")
+        print(f"   c = ({a:.6f} + {b:.6f}) / 2 = {c:.6f}")
+
+        print(f"\n   Rumus f(c) = (g*m/c) * (1 - exp(-c*t/m)) - v")
+        print(f"   f({c:.6f}) = ({g} * {m} / {c:.6f}) * (1 - exp(-{c:.6f} * {t} / {m})) - {v}")
+        print(f"             = {fc:.10f}")
+
+        if c_prev:
+            print(f"\n   Rumus ε_a = |(c_new - c_old) / c_new| * 100%")
+            print(f"   ε_a = |({c:.6f} - {c_prev:.6f}) / {c:.6f}| * 100% = {ε_a:.6f}%")
+
+        print(f"\n   Rumus ε_t = |(true_root - c) / true_root| * 100%")
+        print(f"   ε_t = |({true_root:.8f} - {c:.6f}) / {true_root:.8f}| * 100% = {ε_t:.6f}%")
+
+        # Tentukan interval baru
+        if fa * fc < 0:
+            print(f"\n   Karena f(a)*f(c) < 0 → akar di kiri → interval baru = [{a:.6f}, {c:.6f}]")
+            b = c
+            fb = fc
+        else:
+            print(f"\n   Karena f(a)*f(c) ≥ 0 → akar di kanan → interval baru = [{c:.6f}, {b:.6f}]")
+            a = c
+            fa = fc
+
+        # Kriteria berhenti
+        if abs(fc) < toleransi:
+            print(f"\n✅ KONVERGEN: |f(c)| < toleransi setelah {iterasi} iterasi")
+            break
+        elif c_prev and ε_a < toleransi:
+            print(f"\n✅ KONVERGEN: ε_a < toleransi setelah {iterasi} iterasi")
+            break
+
+        c_prev = c
+    else:
+        print(f"\n⚠️  Tidak konvergen setelah {max_iter} iterasi")
+
+    return c, iterasi, history, true_root

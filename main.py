@@ -1,6 +1,6 @@
 from binerIteration import biner_solver
 from taylorTheorem import taylor_series
-from bisection import fungsi_parachutist, cari_interval, metode_bisection, tampilkan_hasil_akhir, tampilkan_sejarah_iterasi, tampilkan_perkembangan_interval
+from bisection import fungsi_parachutist, cari_interval, metode_bisection, tampilkan_hasil_akhir, tampilkan_sejarah_iterasi, tampilkan_perkembangan_interval, metode_bisection_custom
 from gaus import print_matrix, gauss_elimination, backward_substitution
 from incrementalSearch import incremental_search_multistage
 import numpy as np
@@ -14,6 +14,7 @@ def show_menu():
     print("4. Metode Bisection - PENENTUAN TITIK")
     print("5. Manual Input - Increment ")
     print("6. Metode Drag - Increment")
+    print("7. Manual input - Bisection")
     print("-. Gaus Elimination")
     print("100. Keluar (q)")
     print("-"*40)
@@ -270,7 +271,8 @@ def metode_100():
     print("\nVerifikasi: A × x = b →", np.allclose(np.dot(A, x), b))
     print("A × x =", np.round(np.dot(A, x), 2))
 
-
+def metode_7():
+    metode_bisection_custom()
 
 def main():
   while True:
@@ -289,6 +291,8 @@ def main():
            metode_5()
         elif pilihan == "6":
             metode_6()
+        elif pilihan == "7":
+            metode_7()
         elif pilihan == "q":
            print("\nTerima kasih! Program selesai.")
            break
