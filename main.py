@@ -2,6 +2,7 @@ from binerIteration import biner_solver
 from taylorTheorem import taylor_series
 from bisection import fungsi_parachutist, cari_interval, metode_bisection, tampilkan_hasil_akhir, tampilkan_sejarah_iterasi, tampilkan_perkembangan_interval
 from gaus import print_matrix, gauss_elimination, backward_substitution
+from incrementalSearch import incremental_search_multistage
 import numpy as np
 def show_menu():
     print("\n" + "="*40)
@@ -11,8 +12,10 @@ def show_menu():
     print("2. Metode Deret Taylor")
     print("3. Metode Drag - Bisection")
     print("4. Metode Bisection - PENENTUAN TITIK")
-    print("5. Gaus Elimination")
-    print("6. Keluar")
+    print("5. Manual Input - Increment ")
+    print("6. Metode Drag - Increment")
+    print("-. Gaus Elimination")
+    print("100. Keluar (q)")
     print("-"*40)
     return input("Pilih opsi (1-6): ")
 
@@ -43,7 +46,6 @@ def metode_3():
     print("METODE BISECTION - DRAG COEFFICIENT PARACHUTIST")
     print("=" * 70)
     
-    # Input parameter dari user
     try:
         print("\n📝 MASUKKAN PARAMETER:")
         m = float(input("Massa parachutist (kg) [default: 68.1]: ") or "68.1")
@@ -97,15 +99,15 @@ def metode_3():
     # Parameter untuk fungsi
     params = (m, g, t, v)
     
-    # Jalankan metode bisection
-    akar, iterasi, history = metode_bisection(fungsi_parachutist, a, b, params, toleransi, max_iter)
+    # Jalankan metode bisection dengan ε_a dan ε_t
+    result = metode_bisection(fungsi_parachutist, a, b, params, toleransi, max_iter)
     
-    if akar is not None:
+    if result[0] is not None:
+        akar, iterasi, history, true_root = result
         # Tampilkan semua hasil dalam bentuk tabel
-        tampilkan_hasil_akhir(akar, iterasi, history, params)
+        tampilkan_hasil_akhir(akar, iterasi, history, params, true_root)
         tampilkan_sejarah_iterasi(history, akar)
         tampilkan_perkembangan_interval(history)
-
 
 def metode_4():
     print("\n=== METODE BISECTION - PENENTUAN TITIK BERIKUTNYA ===")
@@ -223,9 +225,19 @@ def metode_4():
             rasio = lebar / lebar_sebelumnya
             print(f"{titik['iterasi']:3d}\t{lebar:12.6f}\t{rasio:10.4f}")
 
-
-
 def metode_5():
+    print("\n" + "="*50)
+    print("PROGRAM INCREMENTAL SEARCH")
+    print("="*50)
+
+    incremental_search_multistage()
+
+def metode_6():
+    print("\n" + "="*50)
+    print("PROGRAM INCREMENTAL SEARCH")
+    print("="*50)
+
+def metode_100():
     print("="*70)
     print("📘 PENYELESAIAN SPL DENGAN METODE GAUSS ELIMINATION")
     print("="*70)
@@ -258,8 +270,7 @@ def metode_5():
     print("\nVerifikasi: A × x = b →", np.allclose(np.dot(A, x), b))
     print("A × x =", np.round(np.dot(A, x), 2))
 
-def metode_6():
-    pass 
+
 
 def main():
   while True:
@@ -277,6 +288,8 @@ def main():
         elif pilihan == "5":
            metode_5()
         elif pilihan == "6":
+            metode_6()
+        elif pilihan == "q":
            print("\nTerima kasih! Program selesai.")
            break
         else:

@@ -67,11 +67,12 @@ def cari_interval(m, g, t, v, c_min=1, c_max=20, step=1):
 
 def metode_bisection(f, a, b, params, toleransi=1e-6, max_iter=100):
     """
-    Metode Bisection untuk mencari akar persamaan
+    Metode Bisection untuk mencari akar persamaan dengan ε_a dan ε_t
     """
     fa = f(a, *params)
     fb = f(b, *params)
-    
+    m, g, t, v = params
+
     print(f"\n" + "="*70)
     print("INFORMASI INTERVAL AWAL")
     print("="*70)
@@ -79,15 +80,39 @@ def metode_bisection(f, a, b, params, toleransi=1e-6, max_iter=100):
     print(f"b = {b:.6f}, f(b) = {fb:.6f}")
     print(f"f(a) × f(b) = {fa * fb:.6f}")
     
+    print(f"\n📊 PERHITUNGAN FUNGSI PARACHUTIST:")
+    print(f"Untuk c = {a:.6f}:")
+    print(f"  f(c) = (g * m / c) * (1 - exp(-c * t / m)) - v")
+    print(f"       = ({g} * {m} / {a:.6f}) * (1 - exp(-{a:.6f} * {t} / {m})) - {v}")
+    print(f"       = {fa:.6f}")
+    
+    print(f"Untuk c = {b:.6f}:")
+    print(f"  f(c) = (g * m / c) * (1 - exp(-c * t / m)) - v")
+    print(f"       = ({g} * {m} / {b:.6f}) * (1 - exp(-{b:.6f} * {t} / {m})) - {v}")
+    print(f"       = {fb:.6f}")
+
     if fa * fb >= 0:
         print("❌ ERROR: f(a) dan f(b) harus memiliki tanda yang berbeda!")
         return None, 0, []
+
+    # Cari true root terlebih dahulu untuk perhitungan ε_t
+    print("\n🔍 MENCARI TRUE ROOT UNTUK PERHITUNGAN ε_t...")
+    a_temp, b_temp = a, b
+    for _ in range(50):  # Iterasi banyak untuk mendapatkan nilai yang akurat
+        c_temp = (a_temp + b_temp) / 2
+        fc_temp = f(c_temp, *params)
+        if fa * fc_temp < 0:
+            b_temp = c_temp
+        else:
+            a_temp = c_temp
+    true_root = c_temp
+    print(f"True root (referensi): {true_root:.8f}")
     
-    print("\n" + "="*90)
+    print("\n" + "="*100)
     print("PROSES ITERASI BISECTION")
-    print("="*90)
-    print("Iter\t   a\t\t   b\t\t   c\t\t  f(c)\t\t  Error%\t  Interval")
-    print("-"*90)
+    print("="*100)
+    print("Iter\t   a\t\t   b\t\t   c\t\t  f(c)\t\t  ε_a (%)\t  ε_t (%)\t  Interval")
+    print("-"*100)
     
     iterasi = 0
     c_prev = 0
@@ -98,11 +123,14 @@ def metode_bisection(f, a, b, params, toleransi=1e-6, max_iter=100):
         c = (a + b) / 2
         fc = f(c, *params)
         
-        # Hitung error
+        # Hitung ε_a (approximate error)
         if i > 0:
-            error = abs((c - c_prev) / c) * 100
+            ε_a = abs((c - c_prev) / c) * 100
         else:
-            error = 100
+            ε_a = float('inf')
+        
+        # Hitung ε_t (true error)
+        ε_t = abs((true_root - c) / true_root) * 100
         
         # Tentukan interval mana yang mengandung akar
         if fa * fc < 0:
@@ -117,19 +145,25 @@ def metode_bisection(f, a, b, params, toleransi=1e-6, max_iter=100):
         history.append({
             'iterasi': iterasi,
             'a': a, 'b': b, 'c': c,
-            'f(c)': fc, 'error': error,
+            'f(c)': fc, 
+            'ε_a': ε_a,
+            'ε_t': ε_t,
             'interval': interval_info,
             'lebar_interval': abs(b - a)
         })
         
-        print(f"{iterasi:3d}\t{a:8.6f}\t{b:8.6f}\t{c:8.6f}\t{fc:10.6f}\t{error:8.4f}%\t{interval_info}")
+        # Tampilkan dengan format yang rapi
+        if iterasi == 1:
+            print(f"{iterasi:3d}\t{a:8.6f}\t{b:8.6f}\t{c:8.6f}\t{fc:10.6f}\t{'':12}\t{ε_t:8.4f}%\t{interval_info}")
+        else:
+            print(f"{iterasi:3d}\t{a:8.6f}\t{b:8.6f}\t{c:8.6f}\t{fc:10.6f}\t{ε_a:8.4f}%\t{ε_t:8.4f}%\t{interval_info}")
         
         # Cek kriteria berhenti
         if abs(fc) < toleransi:
             print(f"\n✅ KONVERGEN: f(c) < toleransi setelah {iterasi} iterasi")
             break
-        elif i > 0 and error < toleransi:
-            print(f"\n✅ KONVERGEN: Error < toleransi setelah {iterasi} iterasi")
+        elif i > 0 and ε_a < toleransi:
+            print(f"\n✅ KONVERGEN: ε_a < toleransi setelah {iterasi} iterasi")
             break
         
         # Update interval
@@ -144,9 +178,9 @@ def metode_bisection(f, a, b, params, toleransi=1e-6, max_iter=100):
     else:
         print(f"\n⚠️  Tidak konvergen setelah {max_iter} iterasi")
     
-    return c, iterasi, history
+    return c, iterasi, history, true_root
 
-def tampilkan_hasil_akhir(akar, iterasi, history, params):
+def tampilkan_hasil_akhir(akar, iterasi, history, params, true_root):
     """
     Menampilkan hasil akhir dalam bentuk tabel
     """
@@ -161,6 +195,7 @@ def tampilkan_hasil_akhir(akar, iterasi, history, params):
         ["-"*50, "-"*20, "-"*30],
         ["Drag coefficient (c)", f"{akar:.8f}", "Akar persamaan"],
         ["f(c*)", f"{fungsi_parachutist(akar, *params):.10f}", "Nilai fungsi di akar"],
+        ["True root (referensi)", f"{true_root:.8f}", "Untuk perhitungan ε_t"],
         ["Jumlah iterasi", f"{iterasi}", "Iterasi yang dilakukan"],
         ["Massa (m)", f"{m} kg", "Massa parachutist"],
         ["Gravitasi (g)", f"{g} m/s²", "Percepatan gravitasi"],
@@ -185,20 +220,31 @@ def tampilkan_hasil_akhir(akar, iterasi, history, params):
     
     for row in verifikasi_table:
         print(f"{row[0]:25} {row[1]:15} {row[2]:15}")
+    
+    # Analisis error akhir
+    print("\n" + "="*70)
+    print("ANALISIS ERROR AKHIR")
+    print("="*70)
+    if len(history) > 1:
+        final_ε_a = history[-1]['ε_a']
+        final_ε_t = history[-1]['ε_t']
+        print(f"ε_a (Approximate Error) akhir: {final_ε_a:.8f}%")
+        print(f"ε_t (True Error) akhir: {final_ε_t:.8f}%")
+        print(f"Selisih |akar - true_root|: {abs(akar - true_root):.10f}")
 
 def tampilkan_sejarah_iterasi(history, akar):
     """
     Menampilkan sejarah iterasi dan jarak dari akar
     """
-    print("\n" + "="*80)
-    print("SEJARAH ITERASI DAN JARAK DARI c*")
-    print("="*80)
-    print("Iter\t  c\t\t  f(c)\t\t  Error%\t  Interval\t\tJarak dari c*")
-    print("-"*80)
+    print("\n" + "="*90)
+    print("SEJARAH ITERASI DAN ERROR")
+    print("="*90)
+    print("Iter\t  c\t\t  f(c)\t\t  ε_a (%)\t  ε_t (%)\t  Jarak dari c*")
+    print("-"*90)
     
     for h in history:
         jarak = abs(h['c'] - akar)
-        print(f"{h['iterasi']:3d}\t{h['c']:8.6f}\t{h['f(c)']:10.6f}\t{h['error']:7.3f}%\t{h['interval']:15}\t{jarak:.8f}")
+        print(f"{h['iterasi']:3d}\t{h['c']:8.6f}\t{h['f(c)']:10.6f}\t{h['ε_a']:8.4f}\t{h['ε_t']:8.4f}\t{jarak:.8f}")
 
 def tampilkan_perkembangan_interval(history):
     """

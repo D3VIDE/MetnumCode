@@ -16,3 +16,143 @@ f pilihan == "1":
     else:
         fungsi = fungsi_kuadrat
         nama_fungsi = "x² + x - 1"
+
+
+
+import math
+
+def incremental_search(f, a, b, dx, target_value=0):
+    """
+    Mencari akar fungsi f(x) = target_value dalam interval [a,b]
+    menggunakan metode incremental search
+    
+    Parameters:
+    f: fungsi yang akan dicari akarnya
+    a: batas bawah interval
+    b: batas atas interval  
+    dx: increment/step size
+    target_value: nilai target (default 0 untuk f(x)=0)
+    """
+    print(f"\n=== INCREMENTAL SEARCH ===")
+    print(f"Interval: [{a}, {b}], Step: {dx}")
+    print(f"Mencari f(x) = {target_value}")
+    print("=" * 50)
+    
+    roots = []
+    x1 = a
+    f1 = f(x1) - target_value
+    iteration = 0
+    
+    print(f"{'Iter':<6} {'x1':<10} {'x2':<10} {'f(x1)':<12} {'f(x2)':<12} {'Status':<15}")
+    print("-" * 65)
+    
+    while x1 <= b:
+        x2 = x1 + dx
+        if x2 > b:
+            break
+            
+        f2 = f(x2) - target_value
+        iteration += 1
+        
+        # Cek tanda berubah
+        if f1 * f2 < 0:
+            status = "AKAR DITEMUKAN"
+            root_interval = (x1, x2)
+            roots.append(root_interval)
+            print(f"{iteration:<6} {x1:<10.4f} {x2:<10.4f} {f1:<12.4f} {f2:<12.4f} {status:<15}")
+        else:
+            status = "tidak ada akar"
+            print(f"{iteration:<6} {x1:<10.4f} {x2:<10.4f} {f1:<12.4f} {f2:<12.4f} {status:<15}")
+        
+        x1 = x2
+        f1 = f2
+    
+    print("=" * 50)
+    return roots
+
+def main():
+    print("INCREMENTAL SEARCH - BERBAGAI APLIKASI")
+    print("\nPilih fungsi:")
+    print("1. Drag Coefficient Parachutist")
+    print("2. Persamaan Kuadrat: x² - 4 = 0")
+    print("3. Fungsi Trigonometri: sin(x) - x² = 0")
+    print("4. Fungsi Eksponensial: eˣ - 3x = 0")
+    print("5. Compound Interest: Cari tingkat bunga")
+    print("6. Population Growth: Cari waktu pertumbuhan")
+    
+    choice = input("\nPilih fungsi (1-6): ")
+    
+    if choice == "1":
+        # Drag Coefficient Parachutist
+        def f(x):
+            m = 68.1
+            g = 9.8
+            t = 10
+            v = 40
+            return (g*m/x) * (1 - math.exp(-x/m*t)) - v
+        a, b, dx = 1, 20, 1
+        target = 0
+        
+    elif choice == "2":
+        # Persamaan Kuadrat
+        def f(x):
+            return x**2 - 4
+        a, b, dx = -3, 3, 0.5
+        target = 0
+        
+    elif choice == "3":
+        # Fungsi Trigonometri
+        def f(x):
+            return math.sin(x) - x**2
+        a, b, dx = 0.5, 1.5, 0.1
+        target = 0
+        
+    elif choice == "4":
+        # Fungsi Eksponensial
+        def f(x):
+            return math.exp(x) - 3*x
+        a, b, dx = 0, 2, 0.2
+        target = 0
+        
+    elif choice == "5":
+        # Compound Interest
+        def f(r):
+            PV = 1000
+            FV = 2000
+            n = 5
+            return PV * (1 + r)**n - FV
+        a, b, dx = 0.1, 0.2, 0.01
+        target = 0
+        
+    elif choice == "6":
+        # Population Growth
+        def f(t):
+            K = 1000
+            r = 0.5
+            P0 = 100
+            return K / (1 + (K/P0 - 1)*math.exp(-r*t)) - 800
+        a, b, dx = 1, 10, 0.5
+        target = 0
+        
+    else:
+        print("Pilihan tidak valid, menggunakan fungsi default")
+        def f(x):
+            return x**2 - 4
+        a, b, dx = -3, 3, 0.5
+        target = 0
+    
+    # Jalankan incremental search
+    roots = incremental_search(f, a, b, dx, target)
+    
+    # Tampilkan hasil
+    if roots:
+        print(f"\n✅ Ditemukan {len(roots)} interval yang mengandung akar:")
+        for i, (x1, x2) in enumerate(roots, 1):
+            print(f"Akar {i}: berada antara {x1:.4f} dan {x2:.4f}")
+            print(f"   f({x1:.4f}) = {f(x1):.6f}")
+            print(f"   f({x2:.4f}) = {f(x2):.6f}")
+    else:
+        print(f"\n❌ Tidak ditemukan akar dalam interval [{a}, {b}]")
+
+if __name__ == "__main__":
+    main()
